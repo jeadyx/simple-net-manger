@@ -13,22 +13,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 private val TAG = "[ServerManager]"
-data class ServerData(
-    @JvmField var id: java.lang.Double = java.lang.Double(-1.0),
-    @JvmField var name: String="",
-    @JvmField var gender: String="",
-    @JvmField var phone: String=""
-){
-    constructor(src: Map<*, *>) : this() {
-        this.javaClass.fields.forEach { field->
-            if(!field.name.startsWith("$")){
-                if(src[field.name]?.javaClass == field.type){
-                    field.set(this, src[field.name])
-                }
-            }
-        }
-    }
-}
 /** 基于OKHttp的接口封装
  * @sample SimpleNetManager.getInstance("https://example.com")
  */
@@ -76,7 +60,6 @@ class SimpleNetManager(var baseUrl: String, var timeout: Long=10) {
             }
             it
         }
-        Log.w(TAG, "get: get target url $targetUrl")
         val request = Request.Builder()
             .url(targetUrl)
             .build()
@@ -114,7 +97,6 @@ class SimpleNetManager(var baseUrl: String, var timeout: Long=10) {
             }
             it
         }
-        Log.w(TAG, "download: get target url $targetUrl")
         val request = Request.Builder()
             .url(targetUrl)
             .build()
@@ -160,7 +142,6 @@ class SimpleNetManager(var baseUrl: String, var timeout: Long=10) {
             }
             it
         }
-        Log.w(TAG, "post: post target url $targetUrl")
         val requestBody = body.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
         val request = Request.Builder().url(targetUrl)
                 .post(requestBody)
@@ -187,7 +168,6 @@ class SimpleNetManager(var baseUrl: String, var timeout: Long=10) {
     }
 
     private inline fun <V>handleResult(body: String?, type: Class<V>?): V? {
-//        Log.w(TAG, "handleResult: result $body", )
         if(type==null){
             return null
         }else if(type == String::class.java){

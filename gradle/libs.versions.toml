@@ -10,6 +10,7 @@ activityCompose = "1.8.0"
 composeBom = "2024.04.01"
 appcompat = "1.6.1"
 material = "1.10.0"
+simplenetmanager = "1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -30,6 +31,7 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version = "4.12.0" }
 gson = { module = "com.google.code.gson:gson", version = "2.10.1" }
+simplenetmanager = { module = "io.github.jeadyx.compose:SimpleNetManager", version.ref = "simplenetmanager" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
