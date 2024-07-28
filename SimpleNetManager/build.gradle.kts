@@ -30,11 +30,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "1.1"
+        jvmTarget = "1.8"
     }
 }
 group = "io.github.jeadyx.compose"
-version = "1.0"
+version = "1.1"
 val tokenUsername:String by project
 val tokenPassword:String by project
 sonatypeUploader{
