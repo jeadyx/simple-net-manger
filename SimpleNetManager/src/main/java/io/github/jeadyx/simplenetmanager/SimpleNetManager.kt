@@ -12,7 +12,7 @@ import java.io.FileOutputStream
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
-private val TAG = "[ServerManager]"
+private val TAG = "[SimpleNetManager]"
 /** 基于OKHttp的接口封装
  * @sample SimpleNetManager.getInstance("https://example.com")
  */
@@ -46,9 +46,9 @@ class SimpleNetManager(var baseUrl: String, var timeout: Long=10) {
     }
 
     /**
-     * 发起GET请求并返回 T 类型
+     * 发起GET请求并返回 T 类型及错误信息(or source body)
      */
-    fun <T> get(path: String="", query: String="", classType: Class<T>?=null, onResult: (T?, String?)->Unit){
+    fun <T> get(path: String="", query: String="", classType: Class<T>?=null, onResult: (T?, err:String?)->Unit){
         val targetUrl = baseUrl.let {
             if(path.trim('/').isNotEmpty()){
                 return@let "$it/$path"
@@ -73,8 +73,9 @@ class SimpleNetManager(var baseUrl: String, var timeout: Long=10) {
                 return@thread
             }
             try{
-                val result = handleResult(response.body?.string(), classType)
-                onResult(result, response.message)
+                val bodyStr = response.body?.string()
+                val result = handleResult(bodyStr, classType)
+                onResult(result, if(result==null) bodyStr else null)
             }catch (e: Exception){
                 Log.e(TAG, "get: catch a exception on handle result $e")
                 onResult(null, e.localizedMessage)
@@ -131,10 +132,10 @@ class SimpleNetManager(var baseUrl: String, var timeout: Long=10) {
     }
 
     /**
-     * 发起POST请求并返回 T 类型
+     * 发起POST请求并返回 T 类型及错误信息(or source body)
      * @param body 请求体 ex: "{\"name\": \"test\"}"
      */
-    fun <T> post(path: String="", body: String="", classType: Class<T>?=null, onResult: (T?, String?)->Unit){
+    fun <T> post(path: String="", body: String="", classType: Class<T>?=null, onResult: (T?, err:String?)->Unit){
         val targetUrl = baseUrl.let {
             val pathCat = path.trim('/')
             if(pathCat.isNotEmpty()){
@@ -160,7 +161,7 @@ class SimpleNetManager(var baseUrl: String, var timeout: Long=10) {
             val result = handleResult(bodyStr, classType)
 //            Log.i(TAG, "post: response ${response.code} ${response.isSuccessful}, ${response.message}", )
             if(response.isSuccessful){
-                onResult(result, null)
+                onResult(result, if(result==null) bodyStr else null)
             }else{
                 onResult(result, response.message)
             }
