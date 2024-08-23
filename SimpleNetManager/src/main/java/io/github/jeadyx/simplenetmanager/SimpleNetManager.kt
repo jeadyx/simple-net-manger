@@ -168,6 +168,80 @@ class SimpleNetManager(var baseUrl: String, var timeout: Long=10) {
         }
     }
 
+    /**
+     * 发起 DELETE 请求并返回 T 类型及错误信息(or source body)
+     * @param body 请求体 ex: "{\"name\": \"test\"}"
+     */
+    fun <T> delete(path: String="", body: String="", classType: Class<T>?=null, onResult: (T?, err:String?)->Unit){
+        val targetUrl = baseUrl.let {
+            val pathCat = path.trim('/')
+            if(pathCat.isNotEmpty()){
+                return@let "$it/$pathCat"
+            }
+            it
+        }
+        val requestBody = body.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+        val request = Request.Builder().url(targetUrl)
+                .delete(requestBody)
+                .build()
+        thread {
+            Looper.prepare()
+            val response: Response
+            try {
+                response = client.newCall(request).execute()
+            }catch (e: Exception){
+                Log.e(TAG, "delete: cat exception $e", )
+                onResult(null, e.message)
+                return@thread
+            }
+            val bodyStr = response.body?.string()
+            val result = handleResult(bodyStr, classType)
+//            Log.i(TAG, "post: response ${response.code} ${response.isSuccessful}, ${response.message}", )
+            if(response.isSuccessful){
+                onResult(result, if(result==null) bodyStr else null)
+            }else{
+                onResult(result, response.message)
+            }
+        }
+    }
+
+    /**
+     * 发起 PUT 请求并返回 T 类型及错误信息(or source body)
+     * @param body 请求体 ex: "{\"name\": \"test\"}"
+     */
+    fun <T> put(path: String="", body: String="", classType: Class<T>?=null, onResult: (T?, err:String?)->Unit){
+        val targetUrl = baseUrl.let {
+            val pathCat = path.trim('/')
+            if(pathCat.isNotEmpty()){
+                return@let "$it/$pathCat"
+            }
+            it
+        }
+        val requestBody = body.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+        val request = Request.Builder().url(targetUrl)
+                .put(requestBody)
+                .build()
+        thread {
+            Looper.prepare()
+            val response: Response
+            try {
+                response = client.newCall(request).execute()
+            }catch (e: Exception){
+                Log.e(TAG, "delete: cat exception $e", )
+                onResult(null, e.message)
+                return@thread
+            }
+            val bodyStr = response.body?.string()
+            val result = handleResult(bodyStr, classType)
+//            Log.i(TAG, "post: response ${response.code} ${response.isSuccessful}, ${response.message}", )
+            if(response.isSuccessful){
+                onResult(result, if(result==null) bodyStr else null)
+            }else{
+                onResult(result, response.message)
+            }
+        }
+    }
+
     private inline fun <V>handleResult(body: String?, type: Class<V>?): V? {
         if(type==null){
             return null
